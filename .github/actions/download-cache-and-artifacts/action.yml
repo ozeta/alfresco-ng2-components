@@ -3,17 +3,43 @@ description: "Download build artifacts"
 runs:
   using: "composite"
   steps:
-    - name: download and extract artifacts from s3
-      shell: bash
-      env:
-        REMOTE_PATH: "alfresco-ng2-components/build-cache/${{ github.run_id }}"      
+    ## NXCACHE
+    - name: update NX cache folder
+      uses: actions/download-artifact@v3
+      with:
+        path: .
+        name: nxcache
+    ## DIST
+    - name: update Dist folder
+      uses: actions/download-artifact@v3
+      with:
+        path: .
+        name: dist
+    ## ADF CLI
+    - name: update Dist folder
+      uses: actions/download-artifact@v3
+      with:
+        path: .
+        name: adf-cli
+    ## ADF TESTING
+    - name: update Dist folder
+      uses: actions/download-artifact@v3
+      with:
+        path: .
+        name: adf-testing
+    - name: extract nxcache
       run: |
-        packages=( dist nxcache node_modules )
-        for i in "${packages[@]}"; do
-          time aws s3 cp --no-progress s3://${S3_BUILD_BUCKET_SHORT_NAME}/${REMOTE_PATH}/$i.tar.gz $i.tar.gz
-          du -h $i.tar.gz
-          time tar xzf $i.tar.gz
-        done
+        tar xzf nxcache.tar.gz
+      shell: bash
+    - name: extract dist
+      run: |
+        tar xzf dist.tar.gz
+      shell: bash
+    - name: extract adf cli
+      run: |
+        tar xzf adf-cli.tar.gz
+        tar xzf adf-testing.tar.gz
+      shell: bash
     - name: show files
       shell: bash
       run: |
