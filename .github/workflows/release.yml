@@ -157,18 +157,19 @@ jobs:
         with: 
           dry-run-flag: ${{ inputs.dry-run-release }}          
       - uses: ./.github/actions/download-cache-and-artifacts
-      - name: Debug
-        uses: mxschmitt/action-tmate@v3
-        with:
-          timeout-minutes: 60
-          limit-access-to-actor: true
 
       - name: build libraries
         run: |
           set -u;
           ./scripts/travis/build/bumpversion.sh
-          nx affected:build $NX_CALCULATION_FLAGS --prod --exclude="demoshell"
-          nx affected $NX_CALCULATION_FLAGS --target=pretheme
+          npx nx affected:build $NX_CALCULATION_FLAGS --prod --exclude="demoshell"
+          npx nx affected $NX_CALCULATION_FLAGS --target=pretheme
+      - name: Debug
+        uses: mxschmitt/action-tmate@v3
+        if: failure()
+        with:
+          timeout-minutes: 60
+          limit-access-to-actor: true
       - name: release libraries
         run: ./scripts/travis/release/release-npm.sh ${{ steps.set-dryrun.outputs.dryrun }}
 
